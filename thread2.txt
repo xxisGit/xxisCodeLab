@@ -1,0 +1,30 @@
+/*定义线程2的线程栈、控制块以及线程2入口函数*/
+ALIGN(RT_ALIGN_SIZE)
+static char thread2_stack[1024];
+static struct rt_thread thread2;
+
+/* 线程2入口 */
+static void thread2_entry(void *param)
+{
+  rt_uint32_t count = 0;
+  /* 线程2拥有较高的优先级，以抢占线程1而获得执行 */
+    for (count = 0; count < 10 ; count++)
+  {
+    rt_kprintf("thread2 count: %d\n", count);
+  }
+  rt_kprintf("thread2 exit\n");
+  /* 线程2运行结束后也将自动被系统删除 */
+}
+
+
+/*------------------------------------------------------------*/
+
+ /* 初始化线程2，名称是thread2，入口是thread2_entry */
+    rt_thread_init(&thread2,
+                   "thread2",
+                   thread2_entry,
+                   RT_NULL,
+                   &thread2_stack[0],
+                   sizeof(thread2_stack),
+                   THREAD_PRIORITY - 1, THREAD_TIMESLICE);
+    rt_thread_startup(&thread2);
